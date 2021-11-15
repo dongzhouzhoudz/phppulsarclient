@@ -1,0 +1,22 @@
+{
+    "name": "php/pulsarwebsocketclient",
+    "description": "This is for pulsar websocket client",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "ZhouDong",
+            "email": "zhoudong@zz-med.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.2",
+        "textalk/websocket": "^1.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "ZZQueueService\\": "lib/queue/"
+        }
+    }
+}
