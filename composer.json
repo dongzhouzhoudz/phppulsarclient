@@ -1,5 +1,5 @@
 {
-    "name": "php/pulsarwebsocketclient",
+    "name": "pulsarwebsocketclient",
     "description": "This is for pulsar websocket client",
     "type": "library",
     "license": "MIT",
