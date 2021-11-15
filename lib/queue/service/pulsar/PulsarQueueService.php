@@ -31,26 +31,66 @@ class PulsarQueueService implements ServiceInterface {
             $pulsarQueueClient = new PulsarQueueClient($configArray['url'],
                 $configArray['tenant'], $configArray['namespace'],
                 $configArray['topic'], $subscribeName);
+            $pulsarQueueClient->InitWebSocketClient();
             $this->setPulsarQueueClient($pulsarQueueClient);
-
         } else {
             throw new \Exception("初始化pulsar websocket client 参数配置不合法");
         }
     }
 
+
+    /**
+     * @param $message
+     *
+     * @return bool
+     * @throws \Exception
+     * 生产数据，发送队列信息
+     */
     function produceMessage($message) {
-        if($this->getPulsarQueueClient() ==null){
+        //队列发送说明
+        if ($this->getPulsarQueueClient() == null) {
             throw  new \Exception("pulsar queue client 生成异常");
-            return;
+
         }
+        //获取生产者实例
+        $producerClient = $this->getPulsarQueueClient()
+            ->getWebSocketProducerClient();
 
-       $producerClient =  $this->getPulsarQueueClient()->getWebSocketProducerClient();
-
-        if($producerClient ==null){
+        if ($producerClient == null) {
             throw new \Exception("pulsar queue producer 生成异常");
-            return;
         }
 
+
+        //判断是否是数组类型
+        if (is_array($message)) {
+            $message = json_encode($message);
+        }
+
+        //发送前需要base64
+        $base64Message = base64_encode($message);
+
+        $prepareSendMessage = [
+            "payload"    => $base64Message,
+            "properties" => new \stdClass(),
+            "context"    => "",
+            "key"        => "",
+        ];
+
+        $sendMessage = json_encode($prepareSendMessage);
+        $sendResult = $producerClient->text($sendMessage);
+        try {
+            $result = json_decode($sendResult);
+            if (array_key_exists("result", $result) &&
+                $result['result'] == "ok") {
+                return true;
+
+            } else {
+                throw new \Exception("Pulsar Php WebSocket Client Send Error----".
+                    $result);
+            }
+        } catch (\Exception $e) {
+            throw new \Exception("Pulsar Php Send Error ---".$e->getMessage());
+        }
 
 
     }
