@@ -31,7 +31,7 @@ class QueueService {
         if (array_key_exists($name, self::QUEUE_SERVICE_LIST)) {
             self::$queueService
                 = (new \ReflectionClass(self::QUEUE_SERVICE_LIST[$name]))->newInstanceArgs();
-            self::$queueService->initConfig($arguments);
+            self::$queueService->initConfig($arguments[0]);
 
             return self::$queueService;
         } else {
@@ -39,7 +39,16 @@ class QueueService {
                 "Can Not Find Function Name : ".$name);
         }
 
+    }
 
+    /**
+     * @param $message
+     *
+     * @return mixed
+     * 发送队列消息
+     */
+    public static function sendMessage($message) {
+        return self::$queueService->produceMessage($message);
     }
 
 }

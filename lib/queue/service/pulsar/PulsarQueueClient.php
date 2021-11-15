@@ -48,6 +48,7 @@ class PulsarQueueClient {
     public function InitWebSocketClient() {
         $this->setProducerWSUrl("ws://".$this->getBrokerServiceUrl()."/ws/v2/producer/persistent/".$this->getTenant()."/".$this->getNamespace()."/".$this->getTopic()."/".$this->getSubscribeName());
         $producerClient = new Client($this->getProducerWSUrl());
+        $this->setWebSocketProducerClient($producerClient);
         $this->setProducerWSUrl($producerClient);
         if($this->getSubscribeName()!=""){
             $this->setConsumerWSUrl("ws://".$this->getBrokerServiceUrl()."/ws/v2/consumer/persistent/".$this->getTenant()."/".$this->getNamespace()."/".$this->getTopic()."/".$this->getSubscribeName());
