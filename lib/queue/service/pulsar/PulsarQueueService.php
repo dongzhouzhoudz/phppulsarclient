@@ -77,7 +77,8 @@ class PulsarQueueService implements ServiceInterface {
         ];
 
         $sendMessage = json_encode($prepareSendMessage);
-        $sendResult = $producerClient->text($sendMessage);
+        $producerClient->text($sendMessage);
+        $sendResult = $producerClient->receive();
         try {
             $result = json_decode($sendResult);
             if (array_key_exists("result", $result) &&
