@@ -10,5 +10,8 @@ namespace  ZZQueueService\service;
 interface ServiceInterface {
     function initConfig($configArray=[]);
     function produceMessage($msg);
-    function consumerMessage();
+    function consumerMessage(callable  $function);
+    function producerClientClose();
+    function consumerClientClose();
+
 }

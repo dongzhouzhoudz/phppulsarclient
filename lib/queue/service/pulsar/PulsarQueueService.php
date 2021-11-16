@@ -47,7 +47,7 @@ class PulsarQueueService implements ServiceInterface {
      * 生产数据，发送队列信息
      */
     function produceMessage($message) {
-        //队列发送说明
+        //队列CLIENT判断是否生成
         if ($this->getPulsarQueueClient() == null) {
             throw  new \Exception("pulsar queue client 生成异常");
 
@@ -80,7 +80,7 @@ class PulsarQueueService implements ServiceInterface {
         $producerClient->text($sendMessage);
         $sendResult = $producerClient->receive();
         try {
-            $result = json_decode($sendResult,true);
+            $result = json_decode($sendResult, true);
             if (array_key_exists("result", $result) &&
                 $result['result'] == "ok") {
                 return true;
@@ -92,13 +92,63 @@ class PulsarQueueService implements ServiceInterface {
         } catch (\Exception $e) {
             throw new \Exception("Pulsar Php Send Error ---".$e->getMessage());
         }
-
-
     }
 
-    function consumerMessage() {
+    /**
+     * @param callable $function
+     *
+     * @throws \Exception
+     * 循环消费信息
+     */
+    function consumerMessage(callable $function) {
+        //队列CLIENT判断是否生成
+        if ($this->getPulsarQueueClient() == null) {
+            throw  new \Exception("pulsar queue client 生成异常");
+        }
+        //获取消费者实例
+        $consumerClient = $this->getPulsarQueueClient()
+            ->getWebSocketConsumerClient();
+        //判断消费者实例是否生成
+        if ($consumerClient == null) {
+            throw new \Exception("pulsar queue producer 生成异常");
+        }
 
+        while (true) {
+            try {
+                $result = $consumerClient->receive();
+                $resultArray = json_decode($result, true);
+                $functionResult = call_user_func($function, $resultArray);
+                if ($functionResult) {
+                    $responseMessage
+                        = ['messageId' => $resultArray['messageId']];
+                    $consumerClient->text(json_encode($responseMessage));
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
     }
+
+    /**
+     * 关闭生产者
+     */
+    function producerClientClose() {
+        if ($this->pulsarQueueClient != null &&
+            $this->pulsarQueueClient->getWebSocketProducerClient() != null) {
+            $this->pulsarQueueClient->getWebSocketProducerClient()->close();
+        }
+    }
+
+    /**
+     * 关闭队列消费者
+     */
+    function consumerClientClose() {
+        if ($this->pulsarQueueClient != null &&
+            $this->pulsarQueueClient->getWebSocketConsumerClient() != null) {
+            $this->pulsarQueueClient->getWebSocketConsumerClient()->close();
+        }
+    }
+
 
     /**
      * @return PulsarQueueClient
