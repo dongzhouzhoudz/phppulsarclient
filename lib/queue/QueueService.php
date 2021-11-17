@@ -13,6 +13,7 @@ class QueueService {
     const QUEUE_SERVICE_LIST
         = [
             "getPulsarQueue" => \ZZQueueService\service\pulsar\PulsarQueueService::class,
+            "getRedisQueue" => \ZZQueueService\service\redis\RedisQueueService::class
         ];
 
 
