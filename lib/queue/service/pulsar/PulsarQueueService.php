@@ -30,7 +30,7 @@ class PulsarQueueService implements ServiceInterface {
             $subscribeName = $configArray['subname'] ?? "";
             $pulsarQueueClient = new PulsarQueueClient($configArray['url'],
                 $configArray['tenant'], $configArray['namespace'],
-                $configArray['topic'], $subscribeName);
+                $configArray['qname'], $subscribeName);
             $pulsarQueueClient->InitWebSocketClient();
             $this->setPulsarQueueClient($pulsarQueueClient);
         } else {
@@ -185,7 +185,7 @@ class PulsarQueueService implements ServiceInterface {
         }
 
 
-        if ( ! array_key_exists("topic", $configArray)) {
+        if ( ! array_key_exists("qname", $configArray)) {
             return false;
         }
 
