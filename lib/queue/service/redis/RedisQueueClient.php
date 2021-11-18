@@ -26,7 +26,7 @@ class RedisQueueClient {
      */
     public function __construct($params, $queueName, $options = []) {
         $this->setConfigParams($params);
-        $this->setConfigOptions($params);
+        $this->setConfigOptions($options);
         $this->setQueueName($queueName);
     }
 

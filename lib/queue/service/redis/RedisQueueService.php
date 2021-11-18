@@ -11,7 +11,7 @@ namespace ZZQueueService\service\redis;
 use ZZQueueService\service\ServiceInterface;
 
 class RedisQueueService implements ServiceInterface {
-    /**@var \ZZQueueService\service\redis\RedisQueueClient **/
+    /**@var \ZZQueueService\service\redis\RedisQueueClient * */
     private $redisQueueClient;
 
     /**
@@ -27,13 +27,14 @@ class RedisQueueService implements ServiceInterface {
                 array_key_exists(['options'], $configArray) &&
                 is_array($configArray['options'])) {
                 $redisQueueClient = new RedisQueueClient($configArray['params'],
-                    $configArray['qname'],$configArray['options']);
+                    $configArray['qname'], $configArray['options']);
             } else {
                 $redisQueueClient
-                    = new RedisQueueClient($configArray['params'],$configArray['qname']);
+                    = new RedisQueueClient($configArray['params'],
+                    $configArray['qname']);
             }
-
-           $this->setRedisQueueClient($redisQueueClient);
+            $redisQueueClient->InitRedisQueueClient();
+            $this->setRedisQueueClient($redisQueueClient);
 
         } else {
             throw new \Exception("初始化pulsar websocket client 参数配置不合法");
@@ -53,15 +54,17 @@ class RedisQueueService implements ServiceInterface {
             throw  new \Exception("redis queue client 生成异常");
         }
 
-        if(!is_string($msg)){
+        if ( ! is_string($msg)) {
             throw  new \Exception("redis queue client 只能发送字符串");
         }
 
         try {
-           $this->redisQueueClient->lpush($this->redisQueueClient->getQueueName(), $msg);
-        }catch (\Exception $e){
+            $this->redisQueueClient->lpush($this->redisQueueClient->getQueueName(),
+                $msg);
+        } catch (\Exception $e) {
             return false;
         }
+
         return true;
 
     }
@@ -79,9 +82,10 @@ class RedisQueueService implements ServiceInterface {
             throw  new \Exception("redis queue client 生成异常");
         }
 
-        while (true){
-            $queueData = $this->redisQueueClient->rpop($this->redisQueueClient->getQueueName());
-            call_user_func($function,$queueData);
+        while (true) {
+            $queueData
+                = $this->redisQueueClient->rpop($this->redisQueueClient->getQueueName());
+            call_user_func($function, $queueData);
         }
 
         // TODO: Implement consumerMessage() method.
@@ -110,10 +114,6 @@ class RedisQueueService implements ServiceInterface {
     }
 
 
-
-
-
-
     /**
      * @param array $configArray
      *
@@ -131,9 +131,6 @@ class RedisQueueService implements ServiceInterface {
 
         return true;
     }
-
-
-
 
 
 }
