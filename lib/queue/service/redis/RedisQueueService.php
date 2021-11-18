@@ -59,8 +59,9 @@ class RedisQueueService implements ServiceInterface {
         }
 
         try {
-            $this->redisQueueClient->lpush($this->redisQueueClient->getQueueName(),
-                $msg);
+            $this->redisQueueClient->getRedisQueueClient()
+                ->lpush($this->redisQueueClient->getQueueName(),
+                    $msg);
         } catch (\Exception $e) {
             return false;
         }
@@ -84,7 +85,8 @@ class RedisQueueService implements ServiceInterface {
 
         while (true) {
             $queueData
-                = $this->redisQueueClient->rpop($this->redisQueueClient->getQueueName());
+                = $this->redisQueueClient->getRedisQueueClient()
+                ->rpop($this->redisQueueClient->getQueueName());
             call_user_func($function, $queueData);
         }
 
